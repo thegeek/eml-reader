@@ -423,7 +423,6 @@ class ThreadManager:
             thread_analysis: Thread analysis results
         """
         metadata = self.thread_metadata[thread_id]
-        headers = eml_data.get("headers", {}).get("common", {})
 
         # Update message count
         metadata["message_count"] = len(self.threads[thread_id])
@@ -460,10 +459,6 @@ class ThreadManager:
 
         if not thread_emails:
             return None
-
-        # Get the first email for basic info
-        first_email = thread_emails[0]["email_data"]
-        headers = first_email.get("headers", {}).get("common", {})
 
         # Calculate engagement metrics
         engagement = self._calculate_thread_engagement(thread_emails)
@@ -506,7 +501,6 @@ class ThreadManager:
         for i, thread_entry in enumerate(sorted_emails):
             email_data = thread_entry["email_data"]
             thread_analysis = thread_entry["thread_analysis"]
-            metadata = email_data.get("metadata", {})
 
             # Calculate response time
             response_time = None

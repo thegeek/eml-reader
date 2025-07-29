@@ -24,7 +24,6 @@ import email.policy
 from email.message import Message
 from pathlib import Path
 from typing import Any, BinaryIO
-from datetime import datetime
 
 from .thread_analyzer import EmailThreadAnalyzer, ThreadManager
 
