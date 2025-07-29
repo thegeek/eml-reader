@@ -27,7 +27,7 @@ thread analysis for all processed emails.
 import hashlib
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 
 class EmailThreadAnalyzer:
@@ -35,9 +35,9 @@ class EmailThreadAnalyzer:
 
     def __init__(self) -> None:
         """Initialize the email thread analyzer."""
-        self.thread_cache: Dict[str, Dict[str, Any]] = {}
+        self.thread_cache: dict[str, dict[str, Any]] = {}
 
-    def analyze_thread(self, eml_data: Dict[str, Any]) -> Dict[str, Any]:
+    def analyze_thread(self, eml_data: dict[str, Any]) -> dict[str, Any]:
         """Analyze threading information for a single email.
 
         Args:
@@ -67,7 +67,7 @@ class EmailThreadAnalyzer:
 
         return thread_analysis
 
-    def _generate_thread_id(self, eml_data: Dict[str, Any]) -> str:
+    def _generate_thread_id(self, eml_data: dict[str, Any]) -> str:
         """Generate a unique thread identifier.
 
         Args:
@@ -109,7 +109,7 @@ class EmailThreadAnalyzer:
         """
         return hashlib.md5(text.encode("utf-8")).hexdigest()[:12]
 
-    def _analyze_subject_thread(self, subject: str) -> Dict[str, Any]:
+    def _analyze_subject_thread(self, subject: str) -> dict[str, Any]:
         """Analyze subject line for threading patterns.
 
         Args:
@@ -190,7 +190,7 @@ class EmailThreadAnalyzer:
         normalized = subject.lower().strip()
         return normalized.startswith(("re:", "aw:"))
 
-    def _calculate_thread_depth(self, metadata: Dict[str, Any]) -> int:
+    def _calculate_thread_depth(self, metadata: dict[str, Any]) -> int:
         """Calculate how deep this message is in the thread.
 
         Args:
@@ -221,7 +221,7 @@ class EmailThreadAnalyzer:
         normalized = subject.lower().strip()
         return normalized.startswith(("fw:", "fwd:"))
 
-    def _is_root_message(self, metadata: Dict[str, Any]) -> bool:
+    def _is_root_message(self, metadata: dict[str, Any]) -> bool:
         """Check if this is a root message in a thread.
 
         Args:
@@ -232,7 +232,7 @@ class EmailThreadAnalyzer:
         """
         return not metadata.get("in_reply_to") and not metadata.get("references")
 
-    def _extract_thread_participants(self, headers: Dict[str, Any]) -> List[str]:
+    def _extract_thread_participants(self, headers: dict[str, Any]) -> list[str]:
         """Extract all participants in the thread.
 
         Args:
@@ -251,7 +251,7 @@ class EmailThreadAnalyzer:
 
         return list(participants)
 
-    def _extract_email_addresses(self, header_value: str) -> List[str]:
+    def _extract_email_addresses(self, header_value: str) -> list[str]:
         """Extract email addresses from header value.
 
         Args:
@@ -269,7 +269,7 @@ class EmailThreadAnalyzer:
 
         return list(set(emails))  # Remove duplicates
 
-    def _calculate_thread_position(self, metadata: Dict[str, Any]) -> int:
+    def _calculate_thread_position(self, metadata: dict[str, Any]) -> int:
         """Calculate position in thread based on references.
 
         Args:
@@ -283,8 +283,8 @@ class EmailThreadAnalyzer:
         return 1
 
     def _calculate_engagement_indicators(
-        self, eml_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, eml_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Calculate engagement indicators for the email.
 
         Args:
@@ -368,11 +368,11 @@ class ThreadManager:
 
     def __init__(self) -> None:
         """Initialize the thread manager."""
-        self.threads: Dict[str, List[Dict[str, Any]]] = {}
-        self.thread_metadata: Dict[str, Dict[str, Any]] = {}
+        self.threads: dict[str, list[dict[str, Any]]] = {}
+        self.thread_metadata: dict[str, dict[str, Any]] = {}
         self.analyzer = EmailThreadAnalyzer()
 
-    def add_email_to_thread(self, eml_data: Dict[str, Any]) -> str:
+    def add_email_to_thread(self, eml_data: dict[str, Any]) -> str:
         """Add an email to its appropriate thread.
 
         Args:
@@ -413,7 +413,7 @@ class ThreadManager:
         return thread_id
 
     def _update_thread_metadata(
-        self, thread_id: str, eml_data: Dict[str, Any], thread_analysis: Dict[str, Any]
+        self, thread_id: str, eml_data: dict[str, Any], thread_analysis: dict[str, Any]
     ) -> None:
         """Update thread metadata with new email information.
 
@@ -423,38 +423,28 @@ class ThreadManager:
             thread_analysis: Thread analysis results
         """
         metadata = self.thread_metadata[thread_id]
-
-        # Update participants
-        participants = thread_analysis["thread_participants"]
-        metadata["participants"].update(participants)
+        headers = eml_data.get("headers", {}).get("common", {})
 
         # Update message count
         metadata["message_count"] = len(self.threads[thread_id])
 
-        # Update last activity
-        email_date = eml_data.get("metadata", {}).get("date_parsed")
-        if email_date:
-            try:
-                parsed_date = datetime.fromisoformat(email_date.replace("Z", "+00:00"))
-                if (
-                    not metadata["last_activity"]
-                    or parsed_date > metadata["last_activity"]
-                ):
-                    metadata["last_activity"] = parsed_date
-            except (ValueError, TypeError):
-                pass
+        # Update participants
+        participants = thread_analysis.get("thread_participants", [])
+        metadata["participants"].update(participants)
 
-        # Update root message ID
-        if thread_analysis["is_root"] and not metadata["root_message_id"]:
-            metadata["root_message_id"] = thread_analysis["message_id"]
+        # Update last activity
+        metadata["last_activity"] = datetime.now()
 
         # Update max depth
-        current_depth = thread_analysis["thread_depth"]
-        if current_depth > metadata["max_depth"]:
-            metadata["max_depth"] = current_depth
+        current_depth = thread_analysis.get("thread_depth", 0)
+        metadata["max_depth"] = max(metadata["max_depth"], current_depth)
 
-    def get_thread_summary(self, thread_id: str) -> Optional[Dict[str, Any]]:
-        """Get summary information for a thread.
+        # Update root message ID if this is a root message
+        if thread_analysis.get("is_root"):
+            metadata["root_message_id"] = eml_data.get("metadata", {}).get("message_id")
+
+    def get_thread_summary(self, thread_id: str) -> dict[str, Any] | None:
+        """Get summary information for a specific thread.
 
         Args:
             thread_id: Thread identifier
@@ -468,97 +458,109 @@ class ThreadManager:
         thread_emails = self.threads[thread_id]
         metadata = self.thread_metadata[thread_id]
 
+        if not thread_emails:
+            return None
+
+        # Get the first email for basic info
+        first_email = thread_emails[0]["email_data"]
+        headers = first_email.get("headers", {}).get("common", {})
+
         # Calculate engagement metrics
-        engagement_metrics = self._calculate_thread_engagement(thread_emails)
+        engagement = self._calculate_thread_engagement(thread_emails)
 
         return {
             "thread_id": thread_id,
-            "message_count": len(thread_emails),
+            "message_count": metadata["message_count"],
             "participants": list(metadata["participants"]),
-            "participant_count": len(metadata["participants"]),
             "subject": metadata["subject"],
-            "created": metadata["created"],
-            "last_activity": metadata["last_activity"],
+            "created": metadata["created"].isoformat(),
+            "last_activity": metadata["last_activity"].isoformat()
+            if metadata["last_activity"]
+            else None,
             "max_depth": metadata["max_depth"],
             "root_message_id": metadata["root_message_id"],
-            "has_attachments": any(
-                email["email_data"].get("attachments") for email in thread_emails
-            ),
-            "engagement_metrics": engagement_metrics,
+            "engagement": engagement,
         }
 
-    def get_thread_timeline(self, thread_id: str) -> List[Dict[str, Any]]:
-        """Get chronological timeline of thread messages.
+    def get_thread_timeline(self, thread_id: str) -> list[dict[str, Any]]:
+        """Get chronological timeline of messages in a thread.
 
         Args:
             thread_id: Thread identifier
 
         Returns:
-            List of timeline entries
+            List of timeline entries for the thread
         """
         if thread_id not in self.threads:
             return []
 
         thread_emails = self.threads[thread_id]
 
-        # Sort by date
+        # Sort emails by date
         sorted_emails = sorted(
             thread_emails,
             key=lambda x: x["email_data"].get("metadata", {}).get("date_timestamp", 0),
         )
 
         timeline = []
-        for i, email in enumerate(sorted_emails):
+        for i, thread_entry in enumerate(sorted_emails):
+            email_data = thread_entry["email_data"]
+            thread_analysis = thread_entry["thread_analysis"]
+            metadata = email_data.get("metadata", {})
+
+            # Calculate response time
+            response_time = None
+            if i > 0:
+                response_time = self._calculate_response_time(sorted_emails, i)
+
             timeline_entry = {
-                "email_data": email["email_data"],
-                "thread_analysis": email["thread_analysis"],
                 "position": i + 1,
-                "is_root": i == 0,
+                "is_root": thread_analysis.get("is_root", False),
                 "is_latest": i == len(sorted_emails) - 1,
-                "response_time": self._calculate_response_time(sorted_emails, i),
+                "email_data": email_data,
+                "thread_analysis": thread_analysis,
+                "response_time": response_time,
             }
+
             timeline.append(timeline_entry)
 
         return timeline
 
     def _calculate_response_time(
-        self, sorted_emails: List[Dict[str, Any]], current_index: int
-    ) -> Optional[Dict[str, Any]]:
-        """Calculate response time for a message in the thread.
+        self, sorted_emails: list[dict[str, Any]], current_index: int
+    ) -> dict[str, Any] | None:
+        """Calculate response time to the previous message.
 
         Args:
-            sorted_emails: Chronologically sorted thread emails
-            current_index: Index of current message
+            sorted_emails: List of sorted thread emails
+            current_index: Index of current email
 
         Returns:
             Response time information or None
         """
         if current_index == 0:
-            return None  # Root message has no response time
+            return None
 
-        current_timestamp = (
-            sorted_emails[current_index]["email_data"]
-            .get("metadata", {})
-            .get("date_timestamp")
-        )
-        previous_timestamp = (
-            sorted_emails[current_index - 1]["email_data"]
-            .get("metadata", {})
-            .get("date_timestamp")
-        )
+        current_email = sorted_emails[current_index]["email_data"]
+        previous_email = sorted_emails[current_index - 1]["email_data"]
+
+        current_timestamp = current_email.get("metadata", {}).get("date_timestamp")
+        previous_timestamp = previous_email.get("metadata", {}).get("date_timestamp")
 
         if not current_timestamp or not previous_timestamp:
             return None
 
-        response_time_seconds = current_timestamp - previous_timestamp
+        response_seconds = current_timestamp - previous_timestamp
 
         return {
-            "seconds": response_time_seconds,
-            "formatted": self._format_duration(response_time_seconds),
+            "seconds": response_seconds,
+            "formatted": self._format_duration(response_seconds),
+            "is_quick": response_seconds < 3600,  # Less than 1 hour
+            "is_same_day": response_seconds < 86400,  # Less than 24 hours
         }
 
     def _format_duration(self, seconds: float) -> str:
-        """Format duration in human-readable format.
+        """Format duration in a human-readable way.
 
         Args:
             seconds: Duration in seconds
@@ -579,55 +581,61 @@ class ThreadManager:
             return f"{days}d"
 
     def _calculate_thread_engagement(
-        self, thread_emails: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
-        """Calculate engagement metrics for a thread.
+        self, thread_emails: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        """Calculate engagement metrics for the entire thread.
 
         Args:
-            thread_emails: List of emails in the thread
+            thread_emails: List of thread email entries
 
         Returns:
-            Engagement metrics dictionary
+            Dictionary containing engagement metrics
         """
         if not thread_emails:
-            return {}
+            return {
+                "avg_engagement_score": 0,
+                "total_messages": 0,
+                "avg_response_time": None,
+                "activity_level": "inactive",
+            }
 
-        total_content_length = sum(
-            email["thread_analysis"]["engagement_indicators"]["content_length"]
-            for email in thread_emails
+        # Calculate average engagement score
+        total_score = 0
+        response_times = []
+
+        for i, thread_entry in enumerate(thread_emails):
+            email_data = thread_entry["email_data"]
+            engagement = email_data.get("thread_analysis", {}).get(
+                "engagement_indicators", {}
+            )
+            total_score += engagement.get("engagement_score", 0)
+
+            # Calculate response time if not the first message
+            if i > 0:
+                response_time = self._calculate_response_time(thread_emails, i)
+                if response_time:
+                    response_times.append(response_time["seconds"])
+
+        avg_engagement = total_score / len(thread_emails)
+        avg_response_time = (
+            sum(response_times) / len(response_times) if response_times else None
         )
-
-        total_recipients = sum(
-            email["thread_analysis"]["engagement_indicators"]["recipient_count"]
-            for email in thread_emails
-        )
-
-        has_attachments = any(
-            email["thread_analysis"]["engagement_indicators"]["has_attachments"]
-            for email in thread_emails
-        )
-
-        avg_engagement_score = sum(
-            email["thread_analysis"]["engagement_indicators"]["engagement_score"]
-            for email in thread_emails
-        ) / len(thread_emails)
 
         return {
-            "total_content_length": total_content_length,
-            "average_content_length": total_content_length / len(thread_emails),
-            "total_recipients": total_recipients,
-            "average_recipients": total_recipients / len(thread_emails),
-            "has_attachments": has_attachments,
-            "average_engagement_score": round(avg_engagement_score, 2),
-            "thread_activity_level": self._calculate_activity_level(
-                len(thread_emails), avg_engagement_score
+            "avg_engagement_score": round(avg_engagement, 2),
+            "total_messages": len(thread_emails),
+            "avg_response_time": self._format_duration(avg_response_time)
+            if avg_response_time
+            else None,
+            "activity_level": self._calculate_activity_level(
+                len(thread_emails), avg_engagement
             ),
         }
 
     def _calculate_activity_level(
         self, message_count: int, avg_engagement: float
     ) -> str:
-        """Calculate activity level for a thread.
+        """Calculate activity level based on message count and engagement.
 
         Args:
             message_count: Number of messages in thread
@@ -637,25 +645,35 @@ class ThreadManager:
             Activity level string
         """
         if message_count >= 10 and avg_engagement >= 70:
-            return "high"
+            return "very_active"
         elif message_count >= 5 and avg_engagement >= 50:
-            return "medium"
-        else:
+            return "active"
+        elif message_count >= 3:
+            return "moderate"
+        elif message_count >= 1:
             return "low"
+        else:
+            return "inactive"
 
-    def get_all_threads(self) -> List[Dict[str, Any]]:
+    def get_all_threads(self) -> list[dict[str, Any]]:
         """Get summaries for all threads.
 
         Returns:
-            List of thread summaries
+            List of all thread summaries
         """
-        return [self.get_thread_summary(thread_id) for thread_id in self.threads.keys()]
+        summaries = []
+        for thread_id in self.threads:
+            summary = self.get_thread_summary(thread_id)
+            if summary:
+                summaries.append(summary)
 
-    def search_threads(self, query: str) -> List[Dict[str, Any]]:
+        return summaries
+
+    def search_threads(self, query: str) -> list[dict[str, Any]]:
         """Search threads by subject or participant.
 
         Args:
-            query: Search query
+            query: Search query string
 
         Returns:
             List of matching thread summaries
@@ -663,7 +681,7 @@ class ThreadManager:
         query_lower = query.lower()
         matching_threads = []
 
-        for thread_id in self.threads.keys():
+        for thread_id in self.threads:
             summary = self.get_thread_summary(thread_id)
             if not summary:
                 continue
