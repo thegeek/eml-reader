@@ -1,25 +1,25 @@
-"""Async web server for the EML Reader application.
+"""Web server implementation for the EML Reader application.
 
-This module provides a high-performance async web server built with aiohttp that
-serves the EML Reader web interface and API endpoints.
+This module provides an asynchronous web server built with aiohttp that serves
+the EML Reader web interface and API endpoints. It includes HTTPS support with
+auto-generated SSL certificates and comprehensive error handling.
 
-Features:
-- Modern web interface with drag & drop file upload
-- RESTful API endpoints for EML processing
-- HTTPS support with auto-generated SSL certificates
-- Configurable file upload size limits
-- Cross-platform compatibility
-- Real-time EML processing and analysis
-- Interactive results display with accordion sections
-
-Endpoints:
+Routes:
 - GET /: Welcome page with API documentation
 - GET /upload: EML file upload interface
 - GET /api/status: Server status and version information
 - POST /api/process: Process EML content and return structured data
+- GET /api/threads: List all analyzed email threads
+- GET /api/threads/{thread_id}: Get detailed thread information
+- GET /api/threads/search/{query}: Search threads by subject or participant
 
-The server supports both HTTP and HTTPS modes, with automatic SSL certificate
-generation for secure connections.
+Features:
+- Async request handling for high performance
+- HTTPS support with auto-generated SSL certificates
+- Configurable file upload size limits
+- JSON API responses with proper error handling
+- Cross-platform compatibility
+- Thread analysis integration
 """
 
 import asyncio
@@ -74,6 +74,13 @@ class EMLServer:
         # API routes
         self.app.router.add_get("/api/status", self._handle_api_status)
         self.app.router.add_post("/api/process", self._handle_api_process_eml)
+        self.app.router.add_get("/api/threads", self._handle_api_threads)
+        self.app.router.add_get(
+            "/api/threads/{thread_id}", self._handle_api_thread_details
+        )
+        self.app.router.add_get(
+            "/api/threads/search/{query}", self._handle_api_thread_search
+        )
 
     async def _handle_root(self, request: web.Request) -> web.Response:
         """Handle the root endpoint with HTML page.
@@ -189,6 +196,95 @@ class EMLServer:
                 {"error": f"Processing failed: {str(e)}"}, status=500
             )
 
+    async def _handle_api_threads(self, request: web.Request) -> web.Response:
+        """Handle thread listing requests.
+
+        Args:
+            request: The incoming request
+
+        Returns:
+            JSON response with thread summaries
+        """
+        try:
+            all_threads = self.eml_processor.get_all_threads()
+
+            return web.json_response(
+                {
+                    "status": "success",
+                    "thread_count": len(all_threads),
+                    "threads": all_threads,
+                }
+            )
+
+        except Exception as e:
+            return web.json_response(
+                {"error": f"Thread listing failed: {str(e)}"}, status=500
+            )
+
+    async def _handle_api_thread_details(self, request: web.Request) -> web.Response:
+        """Handle thread details requests.
+
+        Args:
+            request: The incoming request with thread_id parameter
+
+        Returns:
+            JSON response with thread details
+        """
+        try:
+            thread_id = request.match_info.get("thread_id")
+            if not thread_id:
+                return web.json_response({"error": "Thread ID required"}, status=400)
+
+            thread_summary = self.eml_processor.get_thread_summary(thread_id)
+            if not thread_summary:
+                return web.json_response({"error": "Thread not found"}, status=404)
+
+            thread_timeline = self.eml_processor.get_thread_timeline(thread_id)
+
+            return web.json_response(
+                {
+                    "status": "success",
+                    "thread_id": thread_id,
+                    "summary": thread_summary,
+                    "timeline": thread_timeline,
+                }
+            )
+
+        except Exception as e:
+            return web.json_response(
+                {"error": f"Thread details failed: {str(e)}"}, status=500
+            )
+
+    async def _handle_api_thread_search(self, request: web.Request) -> web.Response:
+        """Handle thread search requests.
+
+        Args:
+            request: The incoming request with query parameter
+
+        Returns:
+            JSON response with search results
+        """
+        try:
+            query = request.match_info.get("query")
+            if not query:
+                return web.json_response({"error": "Search query required"}, status=400)
+
+            search_results = self.eml_processor.search_threads(query)
+
+            return web.json_response(
+                {
+                    "status": "success",
+                    "query": query,
+                    "result_count": len(search_results),
+                    "results": search_results,
+                }
+            )
+
+        except Exception as e:
+            return web.json_response(
+                {"error": f"Thread search failed: {str(e)}"}, status=500
+            )
+
     def create_ssl_context(self, cert_path: Path, key_path: Path) -> ssl.SSLContext:
         """Create SSL context for HTTPS.
 
@@ -259,6 +355,9 @@ class EMLServer:
         print("   - GET  /upload : Upload EML file")
         print("   - GET  /api/status : Server status")
         print("   - POST /api/process : Process EML content")
+        print("   - GET  /api/threads : List all threads")
+        print("   - GET  /api/threads/{id} : Get thread details")
+        print("   - GET  /api/threads/search/{query} : Search threads")
         print(f"   - Max file size: {self.file_size_limit // (1024 * 1024)}MB")
 
         # Keep the server running

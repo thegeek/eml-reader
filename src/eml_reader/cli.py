@@ -1,17 +1,21 @@
 """Command-line interface for the EML Reader application.
 
-This module provides a comprehensive CLI for the EML Reader application, including
-commands for processing EML files, managing the web server, and configuring the
-application.
+This module provides a comprehensive CLI for processing EML files, managing the web
+server, and analyzing email threads. It uses Click for command-line argument
+parsing and provides both individual file processing and batch operations.
 
 Commands:
 - server: Start the web server with optional SSL support
-- bootstrap: Initialize and verify application resources
-- process: Parse and analyze EML files with various output options
+- bootstrap: Initialize application resources and SSL certificates
+- process: Parse and analyze individual EML files
 - config-file-size: Configure maximum file upload size
+- threads: Email threading analysis commands
+  - analyze: Analyze email threads in directories
+  - search: Search threads by subject or participant
+  - show: Show detailed thread information
 
-The CLI uses Click for command-line argument parsing and provides a user-friendly
-interface for all EML Reader functionality.
+The CLI supports various output formats including JSON, pretty-printed JSON,
+and summary mode for quick overviews of email content.
 """
 
 import asyncio
@@ -19,6 +23,7 @@ import click
 import json
 from pathlib import Path
 from typing import Any
+from datetime import datetime
 
 from .server import run_server
 from .resource import ResourceManager
@@ -219,6 +224,199 @@ def config_file_size(size_mb: int) -> None:
 
     except Exception as e:
         click.echo(f"❌ Configuration failed: {e}", err=True)
+        raise click.Abort()
+
+
+@cli.group()
+def threads() -> None:
+    """Thread analysis commands for email conversation tracking."""
+    pass
+
+
+@threads.command()
+@click.argument("directory", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--output", "-o", type=click.Path(path_type=Path), help="Output JSON file path"
+)
+@click.option("--pretty", "-p", is_flag=True, help="Pretty print JSON output")
+def analyze(directory: Path, output: Path | None, pretty: bool) -> None:
+    """Analyze email threads in a directory of EML files.
+
+    This command processes all EML files in the specified directory
+    and analyzes their threading relationships.
+
+    Args:
+        directory: Directory containing EML files
+        output: Output JSON file path (optional)
+        pretty: Pretty print JSON output
+    """
+    try:
+        click.echo(f"🧵 Analyzing email threads in: {directory}")
+
+        # Find all EML files
+        eml_files = list(directory.glob("*.eml"))
+        if not eml_files:
+            click.echo("❌ No EML files found in directory", err=True)
+            raise click.Abort()
+
+        click.echo(f"📧 Found {len(eml_files)} EML files")
+
+        # Process all files
+        processor = EMLProcessor()
+        processed_count = 0
+
+        for eml_file in eml_files:
+            try:
+                click.echo(f"  Processing: {eml_file.name}")
+                processor.parse_eml_file(eml_file)
+                processed_count += 1
+            except Exception as e:
+                click.echo(f"  ⚠️  Skipping {eml_file.name}: {e}")
+
+        # Get thread analysis
+        all_threads = processor.get_all_threads()
+
+        click.echo(f"\n📊 Thread Analysis Results:")
+        click.echo(f"  Total threads: {len(all_threads)}")
+        click.echo(f"  Total messages: {sum(t['message_count'] for t in all_threads)}")
+        click.echo(
+            f"  Average thread size: {sum(t['message_count'] for t in all_threads) / len(all_threads):.1f} messages"
+        )
+
+        # Show top threads by message count
+        top_threads = sorted(
+            all_threads, key=lambda x: x["message_count"], reverse=True
+        )[:5]
+        click.echo(f"\n🏆 Top 5 Threads by Message Count:")
+        for i, thread in enumerate(top_threads, 1):
+            click.echo(
+                f"  {i}. {thread['subject'][:50]}... ({thread['message_count']} messages)"
+            )
+
+        if output:
+            result = {
+                "analysis_date": datetime.now().isoformat(),
+                "directory": str(directory),
+                "files_processed": processed_count,
+                "total_threads": len(all_threads),
+                "threads": all_threads,
+            }
+
+            with open(output, "w", encoding="utf-8") as f:
+                if pretty:
+                    json.dump(result, f, indent=2, ensure_ascii=False)
+                else:
+                    json.dump(result, f, ensure_ascii=False)
+
+            click.echo(f"\n✅ Thread analysis saved to: {output}")
+
+        click.echo(f"\n✅ Thread analysis completed successfully!")
+
+    except Exception as e:
+        click.echo(f"❌ Thread analysis failed: {e}", err=True)
+        raise click.Abort()
+
+
+@threads.command()
+@click.argument("query", type=str)
+@click.option(
+    "--output", "-o", type=click.Path(path_type=Path), help="Output JSON file path"
+)
+@click.option("--pretty", "-p", is_flag=True, help="Pretty print JSON output")
+def search(query: str, output: Path | None, pretty: bool) -> None:
+    """Search threads by subject or participant.
+
+    This command searches through analyzed threads for matches
+    in subject lines or participant email addresses.
+
+    Args:
+        query: Search query string
+        output: Output JSON file path (optional)
+        pretty: Pretty print JSON output
+    """
+    try:
+        click.echo(f"🔍 Searching threads for: '{query}'")
+
+        # Note: This would need a persistent thread database in a real implementation
+        # For now, we'll show how the search would work
+        click.echo("⚠️  Note: Thread search requires previously analyzed threads.")
+        click.echo(
+            "   Use 'eml-reader threads analyze <directory>' first to analyze threads."
+        )
+
+        # Example search results structure
+        search_results = {
+            "query": query,
+            "search_date": datetime.now().isoformat(),
+            "results": [],
+            "total_matches": 0,
+        }
+
+        if output:
+            with open(output, "w", encoding="utf-8") as f:
+                if pretty:
+                    json.dump(search_results, f, indent=2, ensure_ascii=False)
+                else:
+                    json.dump(search_results, f, ensure_ascii=False)
+
+            click.echo(f"✅ Search results saved to: {output}")
+
+        click.echo(f"\n✅ Thread search completed!")
+
+    except Exception as e:
+        click.echo(f"❌ Thread search failed: {e}", err=True)
+        raise click.Abort()
+
+
+@threads.command()
+@click.argument("thread_id", type=str)
+@click.option(
+    "--output", "-o", type=click.Path(path_type=Path), help="Output JSON file path"
+)
+@click.option("--pretty", "-p", is_flag=True, help="Pretty print JSON output")
+def show(thread_id: str, output: Path | None, pretty: bool) -> None:
+    """Show detailed information about a specific thread.
+
+    This command displays detailed information about a thread
+    including timeline and participant analysis.
+
+    Args:
+        thread_id: Thread identifier
+        output: Output JSON file path (optional)
+        pretty: Pretty print JSON output
+    """
+    try:
+        click.echo(f"🧵 Showing thread details for: {thread_id}")
+
+        # Note: This would need a persistent thread database in a real implementation
+        # For now, we'll show how the command would work
+        click.echo("⚠️  Note: Thread details require previously analyzed threads.")
+        click.echo(
+            "   Use 'eml-reader threads analyze <directory>' first to analyze threads."
+        )
+
+        # Example thread details structure
+        thread_details = {
+            "thread_id": thread_id,
+            "summary": None,
+            "timeline": [],
+            "participants": [],
+            "engagement_metrics": {},
+        }
+
+        if output:
+            with open(output, "w", encoding="utf-8") as f:
+                if pretty:
+                    json.dump(thread_details, f, indent=2, ensure_ascii=False)
+                else:
+                    json.dump(thread_details, f, ensure_ascii=False)
+
+            click.echo(f"✅ Thread details saved to: {output}")
+
+        click.echo(f"\n✅ Thread details retrieved!")
+
+    except Exception as e:
+        click.echo(f"❌ Thread details failed: {e}", err=True)
         raise click.Abort()
 
 

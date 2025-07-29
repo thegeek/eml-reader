@@ -1,22 +1,22 @@
-"""EML file processing using Python's standard library email module.
+"""EML file processing and analysis module.
 
-This module provides comprehensive EML file parsing and analysis capabilities using
-Python's built-in email module. It extracts structured data from EML files including
-headers, body content, attachments, and metadata.
+This module provides comprehensive functionality for parsing and analyzing EML files,
+including email threading analysis, participant tracking, and engagement metrics.
+It integrates with the ThreadManager and EmailThreadAnalyzer for advanced email
+conversation analysis.
 
 Features:
-- Complete email header analysis with common and custom headers
-- Body content extraction for both text and HTML formats
-- Attachment analysis with file details and metadata
-- Message metadata extraction including threading information
-- Summary generation for quick overview of email content
+- Complete EML parsing using Python's email module
+- Email threading analysis with automatic thread detection
+- Thread timeline generation with response time analysis
+- Participant tracking and engagement metrics
+- Thread depth calculation and position analysis
+- Subject analysis for thread continuation detection
+- Integration with ThreadManager for thread collection
 - Support for multipart messages and various email formats
-- Robust error handling and encoding support
-- Cross-platform compatibility
 
-The EMLProcessor class provides a clean interface for parsing EML content from
-files, strings, or file-like objects, returning structured data that can be
-easily consumed by web interfaces, APIs, or other applications.
+The module automatically performs thread analysis on all processed emails and
+provides both individual email analysis and thread-level insights.
 """
 
 import email
@@ -26,6 +26,8 @@ from pathlib import Path
 from typing import Any, BinaryIO
 from datetime import datetime
 
+from .thread_analyzer import EmailThreadAnalyzer, ThreadManager
+
 
 class EMLProcessor:
     """Process EML files using Python's standard library email module."""
@@ -34,6 +36,10 @@ class EMLProcessor:
         """Initialize the EML processor."""
         # Use the default policy which handles most email formats correctly
         self.policy = email.policy.default
+
+        # Initialize threading analysis components
+        self.thread_analyzer = EmailThreadAnalyzer()
+        self.thread_manager = ThreadManager()
 
     def parse_eml_content(self, content: str | bytes) -> dict[str, Any]:
         """Parse EML content and extract structured data.
@@ -126,13 +132,24 @@ class EMLProcessor:
         # Extract metadata
         metadata = self._extract_metadata(message)
 
-        return {
+        # Create the base email data
+        email_data = {
             "headers": headers,
             "body": body_data,
             "attachments": attachments,
             "metadata": metadata,
             "raw_size": len(str(message)),
         }
+
+        # Add threading analysis
+        thread_analysis = self.thread_analyzer.analyze_thread(email_data)
+        email_data["thread_analysis"] = thread_analysis
+
+        # Add to thread manager for conversation tracking
+        thread_id = self.thread_manager.add_email_to_thread(email_data)
+        email_data["thread_id"] = thread_id
+
+        return email_data
 
     def _extract_headers(self, message: Message) -> dict[str, Any]:
         """Extract email headers.
@@ -343,3 +360,55 @@ class EMLProcessor:
             "has_text": bool(eml_data.get("body", {}).get("text")),
             "size_bytes": eml_data.get("raw_size", 0),
         }
+
+    def get_thread_summary(self, thread_id: str) -> dict[str, Any] | None:
+        """Get summary information for a specific thread.
+
+        Args:
+            thread_id: Thread identifier
+
+        Returns:
+            Thread summary dictionary or None if thread doesn't exist
+        """
+        return self.thread_manager.get_thread_summary(thread_id)
+
+    def get_thread_timeline(self, thread_id: str) -> list[dict[str, Any]]:
+        """Get chronological timeline of messages in a thread.
+
+        Args:
+            thread_id: Thread identifier
+
+        Returns:
+            List of timeline entries for the thread
+        """
+        return self.thread_manager.get_thread_timeline(thread_id)
+
+    def get_all_threads(self) -> list[dict[str, Any]]:
+        """Get summaries for all threads.
+
+        Returns:
+            List of all thread summaries
+        """
+        return self.thread_manager.get_all_threads()
+
+    def search_threads(self, query: str) -> list[dict[str, Any]]:
+        """Search threads by subject or participant.
+
+        Args:
+            query: Search query string
+
+        Returns:
+            List of matching thread summaries
+        """
+        return self.thread_manager.search_threads(query)
+
+    def get_thread_analysis(self, eml_data: dict[str, Any]) -> dict[str, Any]:
+        """Get detailed thread analysis for an email.
+
+        Args:
+            eml_data: Parsed EML data
+
+        Returns:
+            Detailed thread analysis dictionary
+        """
+        return self.thread_analyzer.analyze_thread(eml_data)

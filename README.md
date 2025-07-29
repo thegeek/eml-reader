@@ -4,14 +4,12 @@ A professional email processing and analysis platform that provides both command
 
 ## ✨ Features
 
-### 🌐 Web Interface
-- **Modern Dark Theme** - Beautiful, professional UI with dark mode
-- **Drag & Drop Upload** - Easy file upload with visual feedback
-- **Real-time Processing** - Instant EML parsing and analysis
-- **Interactive Results** - Expandable accordion sections for organized data display
-- **Email Address Management** - Clickable email addresses with copy functionality
-- **Toast Notifications** - User-friendly feedback for actions
-- **Responsive Design** - Works perfectly on desktop and mobile devices
+### 🌐 Modern Web Interface
+- **Dark Theme**: Professional dark interface with modern design
+- **Drag & Drop**: Intuitive file upload with visual feedback
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
+- **Interactive Elements**: Smooth animations and hover effects
+- **Real-time Processing**: Instant email analysis and display
 
 ### 📊 Comprehensive Email Analysis
 - **Summary Cards** - Quick overview of key email information
@@ -20,18 +18,32 @@ A professional email processing and analysis platform that provides both command
 - **Attachment Analysis** - File details, sizes, and content types
 - **Message Metadata** - Technical email information and threading data
 - **Raw EML Data** - Complete original email content for debugging and analysis
+- **Thread Analysis** - Email conversation threading and relationship mapping
+
+### 🧵 Email Threading Analysis
+- **Automatic Thread Detection** - Identifies email conversations and relationships
+- **Thread Timeline** - Chronological display of messages in conversations
+- **Participant Tracking** - Lists all participants with message counts
+- **Engagement Metrics** - Calculates engagement scores and activity levels
+- **Response Time Analysis** - Tracks response times between messages
+- **Thread Depth Calculation** - Shows how deep messages are in conversations
+- **Interactive Thread Modal** - Click participant boxes to view detailed email context
+- **Style Switching** - Toggle between dark and light themes for HTML content
 
 ### 🔧 Command Line Interface
-- **File Processing** - Direct EML file parsing with JSON output
-- **Summary Mode** - Quick overview of email content
-- **Pretty Printing** - Formatted JSON output for readability
-- **Output Control** - Save results to files or display in terminal
+- **Batch Processing** - Process multiple EML files at once
+- **Thread Analysis** - Analyze email threads in directories
+- **Thread Search** - Search threads by subject or participant
+- **Thread Details** - View detailed thread information
+- **Configuration Management** - Set file upload limits and other settings
+- **JSON Output** - Export results in structured format
 
-### 🚀 Web Server
+### 🔒 Security & Performance
 - **HTTPS Support** - Secure connections with auto-generated SSL certificates
-- **Configurable** - Customizable file upload limits and server settings
-- **API Endpoints** - RESTful API for programmatic access
-- **Cross-platform** - Works on Windows, macOS, and Linux
+- **Content Sanitization** - Safe HTML display with CID image handling
+- **Cross-Platform** - Works on Windows, macOS, and Linux
+- **Configurable Limits** - Adjustable file upload size limits
+- **Error Handling** - Robust error handling and user feedback
 
 ## 🚀 Quick Start
 
@@ -141,6 +153,21 @@ eml-reader bootstrap init --days 730 --country US --state CA --organization "My 
 eml-reader config-file-size 50
 ```
 
+#### Thread Analysis
+```bash
+# Analyze email threads in a directory
+eml-reader threads analyze /path/to/eml/files
+
+# Search threads by subject or participant
+eml-reader threads search "project update"
+
+# Show detailed thread information
+eml-reader threads show thread_abc123
+
+# Save thread analysis to file
+eml-reader threads analyze /path/to/eml/files --output threads.json --pretty
+```
+
 ## 🔧 Configuration
 
 ### Application Data Directory
@@ -243,9 +270,106 @@ Process EML content and return structured data.
       "in_reply_to": "<reply@example.com>",
       "references": ["<ref1@example.com>", "<ref2@example.com>"]
     },
-    "raw_size": 2048
+    "raw_size": 2048,
+    "thread_analysis": {
+      "thread_id": "thread_abc123",
+      "thread_depth": 2,
+      "is_reply": true,
+      "is_forward": false,
+      "thread_participants": ["sender@example.com", "recipient@example.com"],
+      "engagement_indicators": {
+        "engagement_score": 75,
+        "content_length": 1024,
+        "has_attachments": true
+      }
+    }
   },
   "raw_eml": "From: sender@example.com\nTo: recipient@example.com\n..."
+}
+```
+
+#### GET `/api/threads`
+List all analyzed email threads.
+
+**Response:**
+```json
+{
+  "status": "success",
+  "thread_count": 5,
+  "threads": [
+    {
+      "thread_id": "thread_abc123",
+      "message_count": 3,
+      "participants": ["user1@example.com", "user2@example.com"],
+      "subject": "Project Update Discussion",
+      "created": "2024-01-15T10:30:00Z",
+      "last_activity": "2024-01-15T14:45:00Z",
+      "max_depth": 2,
+      "engagement_metrics": {
+        "average_engagement_score": 78.5,
+        "thread_activity_level": "medium"
+      }
+    }
+  ]
+}
+```
+
+#### GET `/api/threads/{thread_id}`
+Get detailed information about a specific thread.
+
+**Response:**
+```json
+{
+  "status": "success",
+  "thread_id": "thread_abc123",
+  "summary": {
+    "thread_id": "thread_abc123",
+    "message_count": 3,
+    "participants": ["user1@example.com", "user2@example.com"],
+    "subject": "Project Update Discussion",
+    "max_depth": 2
+  },
+  "timeline": [
+    {
+      "position": 1,
+      "is_root": true,
+      "is_latest": false,
+      "email_data": {...},
+      "thread_analysis": {...},
+      "response_time": null
+    },
+    {
+      "position": 2,
+      "is_root": false,
+      "is_latest": false,
+      "email_data": {...},
+      "thread_analysis": {...},
+      "response_time": {
+        "seconds": 3600,
+        "formatted": "1h"
+      }
+    }
+  ]
+}
+```
+
+#### GET `/api/threads/search/{query}`
+Search threads by subject or participant.
+
+**Response:**
+```json
+{
+  "status": "success",
+  "query": "project",
+  "result_count": 2,
+  "results": [
+    {
+      "thread_id": "thread_abc123",
+      "subject": "Project Update Discussion",
+      "message_count": 3,
+      "participants": ["user1@example.com", "user2@example.com"]
+    }
+  ]
 }
 ```
 
@@ -328,10 +452,41 @@ For issues, questions, or feature requests:
 
 ## 🎯 Roadmap
 
-- [ ] Email threading analysis
-- [ ] Advanced search and filtering
-- [ ] Bulk EML processing
-- [ ] Email export functionality
-- [ ] Integration with email servers
-- [ ] Plugin system for custom processors
-- [ ] Advanced analytics and reporting
+### ✅ Completed Features
+- [x] Web interface with modern dark theme
+- [x] Drag & drop file upload
+- [x] Comprehensive email analysis (headers, body, attachments, metadata)
+- [x] Interactive accordion sections
+- [x] Email address formatting with copy functionality
+- [x] Toast notifications for user feedback
+- [x] HTTPS support with auto-generated SSL certificates
+- [x] Cross-platform compatibility
+- [x] Command-line interface for batch processing
+- [x] Configuration management
+- [x] Raw EML data display
+- [x] **Email threading analysis** - Complete implementation with thread detection, timeline generation, and conversation tracking
+- [x] **Interactive thread analysis modal** - Clickable participant boxes with detailed email context
+- [x] **HTML content sanitization** - Handles CID image references and security issues
+- [x] **Style switching** - Dark/light theme toggle for HTML content display
+
+### 🚀 Planned Features
+- [ ] Advanced email filtering and search
+- [ ] Email analytics dashboard
+- [ ] Export functionality (PDF, CSV, JSON)
+- [ ] Email signature detection and extraction
+- [ ] Spam detection and scoring
+- [ ] Email encryption analysis
+- [ ] Multi-language support
+- [ ] Email archiving and backup
+- [ ] Real-time email monitoring
+- [ ] Integration with email servers (IMAP, POP3)
+- [ ] Email template analysis
+- [ ] Sentiment analysis for email content
+- [ ] Email workflow automation
+- [ ] Advanced reporting and insights
+- [ ] Email compliance checking
+- [ ] Email security analysis
+- [ ] Email performance metrics
+- [ ] Email collaboration features
+- [ ] Email data visualization
+- [ ] Email API for third-party integrations

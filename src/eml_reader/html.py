@@ -895,6 +895,438 @@ COMMON_STYLES = """
         margin-right: 0.5rem;
     }
     
+    .thread-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .thread-summary {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .thread-summary-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #333;
+    }
+    
+    .thread-subject {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #ffffff;
+        flex: 1;
+    }
+    
+    .thread-stats {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .thread-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #252525;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #e0e0e0;
+    }
+    
+    .thread-timeline {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .timeline-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #333;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .timeline-item:hover {
+        border-color: #667eea;
+        background: #252525;
+    }
+    
+    .timeline-item.root {
+        border-left: 4px solid #00b894;
+    }
+    
+    .timeline-item.latest {
+        border-left: 4px solid #667eea;
+    }
+    
+    .timeline-marker {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        background: #667eea;
+        color: white;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    
+    .timeline-content {
+        flex: 1;
+    }
+    
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .sender {
+        font-weight: 600;
+        color: #ffffff;
+    }
+    
+    .message-date {
+        color: #a0a0a0;
+        font-size: 0.9rem;
+    }
+    
+    .message-subject {
+        color: #e0e0e0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .thread-indicators {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .reply-badge, .forward-badge, .depth-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .reply-badge {
+        background: #00b894;
+        color: white;
+    }
+    
+    .forward-badge {
+        background: #f39c12;
+        color: white;
+    }
+    
+    .depth-badge {
+        background: #667eea;
+        color: white;
+    }
+    
+    .thread-participants {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .participants-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .participant-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #252525;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .participant-item:hover {
+        background: #2a2a2a;
+        border-color: #667eea;
+    }
+    
+    .participant-email {
+        color: #e0e0e0;
+        font-weight: 500;
+    }
+    
+    .message-count {
+        background: #667eea;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .message-count:hover {
+        background: #5a6fd8;
+        transform: scale(1.05);
+    }
+    
+    .message-count:active {
+        transform: scale(0.95);
+    }
+    
+    /* Modal styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-content {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 16px;
+        max-width: 90vw;
+        max-height: 90vh;
+        width: 800px;
+        overflow: hidden;
+        transform: scale(0.9);
+        transition: all 0.3s ease;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-overlay.show .modal-content {
+        transform: scale(1);
+    }
+    
+    .modal-header {
+        background: #252525;
+        padding: 1.5rem;
+        border-bottom: 1px solid #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #ffffff;
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        color: #a0a0a0;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-close:hover {
+        color: #ffffff;
+        background: #333;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .email-context {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .context-header {
+        background: #252525;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .context-subject {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #333;
+    }
+    
+    .context-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .context-meta-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .context-meta-label {
+        font-size: 0.8rem;
+        color: #a0a0a0;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .context-meta-value {
+        color: #e0e0e0;
+        font-weight: 500;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.5;
+        padding: 0.75rem;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        min-height: 2.5rem;
+    }
+    
+    .context-meta-value .copy-btn {
+        display: inline-block;
+        margin-left: 0.5rem;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
+    
+    .context-meta-value:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .context-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .context-meta-grid .context-meta-row {
+        margin-bottom: 0;
+    }
+    
+    .context-body {
+        background: #252525;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .context-body-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .context-body-title-left {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .style-switch {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: #a0a0a0;
+    }
+    
+    .style-switch-btn {
+        background: #333;
+        border: 1px solid #555;
+        color: #e0e0e0;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+    }
+    
+    .style-switch-btn:hover {
+        background: #444;
+        border-color: #666;
+    }
+    
+    .style-switch-btn.active {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+    
+    .context-body-content {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 1rem;
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: #e0e0e0;
+    }
+    
+    .context-body-content.html {
+        background: #1a1a1a;
+        color: #e0e0e0;
+    }
+    
+    .context-body-content.html.light {
+        background: #ffffff;
+        color: #333333;
+        border-color: #ddd;
+    }
+    
+    .context-body-content.text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
     @media (max-width: 768px) {
         body {
             padding: 10px;
@@ -1202,6 +1634,24 @@ UPLOAD_PAGE = f"""
                         </div>
                     </div>
                 </div>
+                
+                <!-- Thread Analysis Section -->
+                <div class="accordion-item">
+                    <div class="accordion-header" data-accordion="thread">
+                        <div class="accordion-title">🧵 Thread Analysis</div>
+                        <div class="accordion-icon">▼</div>
+                    </div>
+                    <div class="accordion-content" id="threadContent">
+                        <div class="content-box">
+                            <div class="content-box-title">🧵 Thread Information</div>
+                            <div class="thread-info" id="threadInfo">
+                                <div class="thread-summary" id="threadSummary"></div>
+                                <div class="thread-timeline" id="threadTimeline"></div>
+                                <div class="thread-participants" id="threadParticipants"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -1210,6 +1660,21 @@ UPLOAD_PAGE = f"""
                 <span>←</span>
                 Back to Home
             </a>
+        </div>
+    </div>
+    
+    <!-- Email Context Modal -->
+    <div class="modal-overlay" id="emailContextModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📧 Email Context</div>
+                <button class="modal-close" onclick="closeEmailContext()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="email-context" id="emailContextContent">
+                    <!-- Email context content will be populated here -->
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1384,7 +1849,7 @@ UPLOAD_PAGE = f"""
             }}
             
             if (data.body?.html) {{
-                htmlContent.innerHTML = data.body.html;
+                htmlContent.innerHTML = sanitizeHtml(data.body.html);
             }} else {{
                 htmlContent.textContent = 'No HTML content available';
             }}
@@ -1434,6 +1899,127 @@ UPLOAD_PAGE = f"""
             }} else {{
                 rawEmlData.textContent = 'No raw data available';
             }}
+            
+            // Display thread analysis
+            displayThreadAnalysis(data);
+        }}
+        
+        function displayThreadAnalysis(data) {{
+            const threadSummary = document.getElementById('threadSummary');
+            const threadTimeline = document.getElementById('threadTimeline');
+            const threadParticipants = document.getElementById('threadParticipants');
+            
+            const threadAnalysis = data.thread_analysis;
+            if (!threadAnalysis) {{
+                threadSummary.innerHTML = '<div class="data-value empty">No thread analysis available</div>';
+                threadTimeline.innerHTML = '<div class="data-value empty">No timeline available</div>';
+                threadParticipants.innerHTML = '<div class="data-value empty">No participants available</div>';
+                return;
+            }}
+            
+            // Display thread summary
+            const summary = threadAnalysis.subject_thread || {{}};
+            const engagement = threadAnalysis.engagement_indicators || {{}};
+            const headers = data.headers?.common || {{}};
+            
+            // Get meaningful subject
+            const subject = summary.normalized || summary.original || headers.subject || 'No Subject';
+            
+            threadSummary.innerHTML = `
+                <div class="thread-summary-header">
+                    <div class="thread-subject">${{subject}}</div>
+                    <div class="thread-stats">
+                        <div class="thread-stat">
+                            <span>📧</span>
+                            <span>Depth: ${{threadAnalysis.thread_depth || 0}}</span>
+                        </div>
+                        <div class="thread-stat">
+                            <span>👥</span>
+                            <span>${{(threadAnalysis.thread_participants || []).length}} participants</span>
+                        </div>
+                        <div class="thread-stat">
+                            <span>⭐</span>
+                            <span>Engagement: ${{engagement.engagement_score || 0}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">Thread ID</div>
+                        <div class="data-value">${{threadAnalysis.thread_id || 'Unknown'}}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Message Position</div>
+                        <div class="data-value">${{threadAnalysis.thread_position || 1}}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Thread Type</div>
+                        <div class="data-value">
+                            ${{threadAnalysis.is_root ? '🌱 Root Message' : ''}}
+                            ${{threadAnalysis.is_reply ? '↩️ Reply' : ''}}
+                            ${{threadAnalysis.is_forward ? '↪️ Forward' : ''}}
+                            ${{!threadAnalysis.is_root && !threadAnalysis.is_reply && !threadAnalysis.is_forward ? '📧 New Message' : ''}}
+                        </div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Subject Analysis</div>
+                        <div class="data-value">
+                            ${{summary.has_re_prefix ? 'Re: ' : ''}}
+                            ${{summary.has_fw_prefix ? 'Fw: ' : ''}}
+                            ${{summary.has_aw_prefix ? 'Aw: ' : ''}}
+                            ${{summary.prefix_count > 0 ? `(${{summary.prefix_count}} prefixes)` : ''}}
+                            ${{!summary.has_re_prefix && !summary.has_fw_prefix && !summary.has_aw_prefix ? 'No prefixes' : ''}}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Display thread timeline (simplified for single email)
+            const timelineData = {{
+                position: threadAnalysis.thread_position || 1,
+                is_root: threadAnalysis.is_root || false,
+                is_latest: true,
+                email_data: data,
+                thread_analysis: threadAnalysis
+            }};
+            
+            threadTimeline.innerHTML = `
+                <div class="timeline-item ${{timelineData.is_root ? 'root' : ''}} ${{timelineData.is_latest ? 'latest' : ''}}">
+                    <div class="timeline-marker">${{timelineData.position}}</div>
+                    <div class="timeline-content">
+                        <div class="message-header">
+                            <span class="sender">${{headers.from || 'Unknown Sender'}}</span>
+                            <span class="message-date">${{headers.date || 'Unknown Date'}}</span>
+                        </div>
+                        <div class="message-subject">${{headers.subject || 'No Subject'}}</div>
+                        <div class="thread-indicators">
+                            ${{threadAnalysis.is_reply ? '<span class="reply-badge">↩️ Reply</span>' : ''}}
+                            ${{threadAnalysis.is_forward ? '<span class="forward-badge">↪️ Forward</span>' : ''}}
+                            <span class="depth-badge">Depth: ${{threadAnalysis.thread_depth || 0}}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Display participants
+            const participants = threadAnalysis.thread_participants || [];
+            if (participants && participants.length > 0) {{
+                threadParticipants.innerHTML = `
+                    <div class="participants-list">
+                        ${{participants.map((participant, index) => `
+                            <div class="participant-item">
+                                <div class="participant-email">${{formatEmailAddresses(participant)}}</div>
+                                <div class="message-count" onclick="showEmailContext('${{participant}}', ${{index}})">1 message</div>
+                            </div>
+                        `).join('')}}
+                    </div>
+                `;
+                
+                // Store email data globally for modal access
+                window.currentEmailData = data;
+            }} else {{
+                threadParticipants.innerHTML = '<div class="data-value empty">No participants found</div>';
+            }}
         }}
         
         function formatEmailAddresses(addresses) {{
@@ -1451,8 +2037,14 @@ UPLOAD_PAGE = f"""
                 return formatSingleEmail(emailList[0]);
             }}
             
-            // Return each email on its own line
-            return emailList.map(email => `<div>${{formatSingleEmail(email)}}</div>`).join('');
+            // For multiple emails, create a cleaner layout
+            return emailList.map(email => `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #333; margin-bottom: 0.5rem;">
+                    <div style="flex: 1; min-width: 0;">
+                        ${{formatSingleEmail(email)}}
+                    </div>
+                </div>
+            `).join('');
         }}
         
         function formatSingleEmail(email) {{
@@ -1543,6 +2135,203 @@ UPLOAD_PAGE = f"""
                     }}
                 }}, 300);
             }}, 2000);
+        }}
+        
+        function closeEmailContext() {{
+            const modal = document.getElementById('emailContextModal');
+            modal.classList.remove('show');
+        }}
+        
+        function switchHtmlStyle(style) {{
+            const htmlContent = document.getElementById('htmlContentArea');
+            const darkBtn = document.querySelector('.style-switch-btn[onclick*="dark"]');
+            const lightBtn = document.querySelector('.style-switch-btn[onclick*="light"]');
+            
+            if (!htmlContent) return;
+            
+            // Update button states
+            if (style === 'dark') {{
+                darkBtn.classList.add('active');
+                lightBtn.classList.remove('active');
+                htmlContent.classList.remove('light');
+            }} else {{
+                lightBtn.classList.add('active');
+                darkBtn.classList.remove('active');
+                htmlContent.classList.add('light');
+            }}
+        }}
+        
+        function showEmailContext(participantEmail, participantIndex) {{
+            const modal = document.getElementById('emailContextModal');
+            const content = document.getElementById('emailContextContent');
+            
+            // Get the current email data
+            const emailData = window.currentEmailData;
+            if (!emailData) {{
+                console.error('No email data available');
+                return;
+            }}
+            
+            // Extract email address from participant (handle "Name <email>" format)
+            const emailMatch = participantEmail.match(/<(.+?)>/);
+            const emailAddress = emailMatch ? emailMatch[1] : participantEmail;
+            
+            // Create context content
+            const headers = emailData.headers?.common || {{}};
+            const body = emailData.body || {{}};
+            const threadAnalysis = emailData.thread_analysis || {{}};
+            
+            content.innerHTML = `
+                <div class="context-header">
+                    <div class="context-subject">${{headers.subject || 'No Subject'}}</div>
+                    <div class="context-meta">
+                        <div class="context-meta-row">
+                            <div class="context-meta-label">From</div>
+                            <div class="context-meta-value">${{formatEmailAddresses(headers.from || 'Unknown')}}</div>
+                        </div>
+                        <div class="context-meta-row">
+                            <div class="context-meta-label">To</div>
+                            <div class="context-meta-value">${{formatEmailAddresses(headers.to || 'Unknown')}}</div>
+                        </div>
+                        <div class="context-meta-grid">
+                            <div class="context-meta-row">
+                                <div class="context-meta-label">Date</div>
+                                <div class="context-meta-value">${{headers.date || 'Unknown'}}</div>
+                            </div>
+                            <div class="context-meta-row">
+                                <div class="context-meta-label">Thread ID</div>
+                                <div class="context-meta-value">${{threadAnalysis.thread_id || 'Unknown'}}</div>
+                            </div>
+                        </div>
+                        <div class="context-meta-grid">
+                            <div class="context-meta-row">
+                                <div class="context-meta-label">Thread Depth</div>
+                                <div class="context-meta-value">${{threadAnalysis.thread_depth || 0}}</div>
+                            </div>
+                            <div class="context-meta-row">
+                                <div class="context-meta-label">Engagement Score</div>
+                                <div class="context-meta-value">${{threadAnalysis.engagement_indicators?.engagement_score || 0}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${{body.html ? `
+                <div class="context-body">
+                    <div class="context-body-title">
+                        <div class="context-body-title-left">
+                            <span>📄</span>
+                            <span>HTML Content</span>
+                        </div>
+                        <div class="style-switch">
+                            <span>Style:</span>
+                            <button class="style-switch-btn" onclick="switchHtmlStyle('dark')">Dark</button>
+                            <button class="style-switch-btn active" onclick="switchHtmlStyle('light')">Light</button>
+                        </div>
+                    </div>
+                    <div class="context-body-content html light" id="htmlContentArea">${{sanitizeHtml(body.html)}}</div>
+                </div>
+                ` : ''}}
+                
+                ${{body.text ? `
+                <div class="context-body">
+                    <div class="context-body-title">
+                        <div class="context-body-title-left">
+                            <span>📝</span>
+                            <span>Text Content</span>
+                        </div>
+                    </div>
+                    <div class="context-body-content text">${{escapeHtml(body.text)}}</div>
+                </div>
+                ` : ''}}
+                
+                ${{emailData.attachments && emailData.attachments.length > 0 ? `
+                <div class="context-body">
+                    <div class="context-body-title">
+                        <div class="context-body-title-left">
+                            <span>📎</span>
+                            <span>Attachments (${{emailData.attachments.length}})</span>
+                        </div>
+                    </div>
+                    <div class="context-body-content">
+                        ${{emailData.attachments.map(attachment => `
+                            <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: #1a1a1a; border-radius: 4px;">
+                                <strong>${{attachment.filename || 'Unnamed'}}</strong><br>
+                                <small>${{attachment.content_type}} • ${{formatFileSize(attachment.size)}}</small>
+                            </div>
+                        `).join('')}}
+                    </div>
+                </div>
+                ` : ''}}
+            `;
+            
+            // Show modal
+            modal.classList.add('show');
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {{
+                if (e.target === modal) {{
+                    closeEmailContext();
+                }}
+            }});
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {{
+                if (e.key === 'Escape') {{
+                    closeEmailContext();
+                }}
+            }});
+        }}
+        
+        function escapeHtml(text) {{
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }}
+        
+        function sanitizeHtml(html) {{
+            if (!html) return '';
+            
+            // Create a temporary div to parse and sanitize HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Handle CID image references
+            const images = tempDiv.querySelectorAll('img');
+            images.forEach(img => {{
+                const src = img.getAttribute('src');
+                if (src && src.startsWith('cid:')) {{
+                    // Replace CID images with a placeholder
+                    img.setAttribute('src', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2FhYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlPC90ZXh0Pjwvc3ZnPg==');
+                    img.setAttribute('alt', 'Embedded image (CID: ' + src.substring(4) + ')');
+                    img.style.border = '1px solid #333';
+                    img.style.padding = '10px';
+                    img.style.backgroundColor = '#1a1a1a';
+                }}
+            }});
+            
+            // Handle other potentially problematic elements
+            const scripts = tempDiv.querySelectorAll('script');
+            scripts.forEach(script => script.remove());
+            
+            const styles = tempDiv.querySelectorAll('style');
+            styles.forEach(style => {{
+                // Keep styles but sanitize them
+                style.textContent = style.textContent.replace(/url\(/gi, 'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2FhYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlPC90ZXh0Pjwvc3ZnPg==)');
+            }});
+            
+            // Handle external links to prevent security issues
+            const links = tempDiv.querySelectorAll('a');
+            links.forEach(link => {{
+                const href = link.getAttribute('href');
+                if (href && (href.startsWith('javascript:') || href.startsWith('data:'))) {{
+                    link.removeAttribute('href');
+                    link.style.color = '#666';
+                    link.style.textDecoration = 'line-through';
+                }}
+            }});
+            
+            return tempDiv.innerHTML;
         }}
         
         function formatFileSize(bytes) {{

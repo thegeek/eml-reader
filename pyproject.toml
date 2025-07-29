@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "eml-reader"
-version = "0.1.0"
+version = "0.2.0"
 description = "A professional email processing and analysis platform with web interface and CLI for reading, parsing, and analyzing EML files"
 readme = "README.md"
 requires-python = ">=3.13"
