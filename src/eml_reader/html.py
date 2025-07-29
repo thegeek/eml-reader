@@ -1464,15 +1464,15 @@ UPLOAD_PAGE = f"""
                 // Format: "Full Name <email@domain.com>"
                 const name = match[1].trim();
                 const emailAddress = match[2].trim();
-                return `${{name}} <a href="mailto:${{emailAddress}}" style="color: #667eea; text-decoration: none;">${{emailAddress}}</a> <button onclick="copyToClipboard('${{emailAddress}}')" class="copy-btn" title="Copy email address">📋</button>`;
+                return `${{name}} <a href="mailto:${{emailAddress}}" style="color: #667eea; text-decoration: none;">${{emailAddress}}</a> <button onclick="copyToClipboard('${{emailAddress}}', event)" class="copy-btn" title="Copy email address">📋</button>`;
             }} else {{
                 // Format: "email@domain.com" -> "email@domain.com"
                 const emailAddress = email.trim();
-                return `<a href="mailto:${{emailAddress}}" style="color: #667eea; text-decoration: none;">${{emailAddress}}</a> <button onclick="copyToClipboard('${{emailAddress}}')" class="copy-btn" title="Copy email address">📋</button>`;
+                return `<a href="mailto:${{emailAddress}}" style="color: #667eea; text-decoration: none;">${{emailAddress}}</a> <button onclick="copyToClipboard('${{emailAddress}}', event)" class="copy-btn" title="Copy email address">📋</button>`;
             }}
         }}
         
-        function copyToClipboard(text) {{
+        function copyToClipboard(text, event) {{
             navigator.clipboard.writeText(text).then(() => {{
                 showToast('Copied to clipboard', event);
             }}).catch(err => {{
