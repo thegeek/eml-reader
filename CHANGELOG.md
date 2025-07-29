@@ -2,6 +2,17 @@
 
 All notable changes to the EML Reader project will be documented in this file.
 
+## [0.2.1] - 2025-07-29
+
+### 🎨 Improved - Thread Timeline Layout
+- **Vertical Timeline Design**: New agenda-style timeline with alternating left/right message positioning
+- **Timeline Axis**: Central gradient line with visual markers for message positions
+- **Month Markers**: White circular markers showing month/year at timeline boundaries
+- **Visual Pointers**: Triangular arrows connecting messages to the timeline axis
+- **Enhanced Hover Effects**: Improved hover animations and visual feedback
+- **Professional Styling**: Better typography, spacing, and visual hierarchy
+- **Responsive Design**: Timeline adapts gracefully to different screen sizes
+
 ## [0.2.0] - 2025-07-29
 
 ### 🧵 Added - Email Threading Analysis

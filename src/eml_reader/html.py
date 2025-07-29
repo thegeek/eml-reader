@@ -946,69 +946,145 @@ COMMON_STYLES = """
         border: 1px solid #333;
         border-radius: 12px;
         padding: 1.5rem;
+        position: relative;
+    }
+    
+    .timeline-container {
+        position: relative;
+        padding: 2rem 0;
+    }
+    
+    .timeline-axis {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 2px;
+        transform: translateX(-50%);
     }
     
     .timeline-item {
+        position: relative;
         display: flex;
-        gap: 1rem;
-        padding: 1rem;
-        border: 1px solid #333;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-        transition: all 0.3s ease;
+        align-items: center;
+        margin-bottom: 2rem;
+        width: 100%;
     }
     
-    .timeline-item:hover {
-        border-color: #667eea;
-        background: #252525;
+    .timeline-item:nth-child(odd) {
+        justify-content: flex-start;
     }
     
-    .timeline-item.root {
-        border-left: 4px solid #00b894;
-    }
-    
-    .timeline-item.latest {
-        border-left: 4px solid #667eea;
+    .timeline-item:nth-child(even) {
+        justify-content: flex-end;
     }
     
     .timeline-marker {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
         width: 2rem;
         height: 2rem;
         background: #667eea;
         color: white;
         border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-weight: 600;
         font-size: 0.9rem;
-        flex-shrink: 0;
+        z-index: 2;
+        border: 3px solid #1a1a1a;
+    }
+    
+    .timeline-item.root .timeline-marker {
+        background: #00b894;
+    }
+    
+    .timeline-item.latest .timeline-marker {
+        background: #f39c12;
     }
     
     .timeline-content {
-        flex: 1;
+        width: 45%;
+        background: #252525;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 1.5rem;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .timeline-item:nth-child(odd) .timeline-content {
+        margin-right: 50%;
+    }
+    
+    .timeline-item:nth-child(even) .timeline-content {
+        margin-left: 50%;
+    }
+    
+    .timeline-content:hover {
+        border-color: #667eea;
+        background: #2a2a2a;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+    }
+    
+    .timeline-pointer {
+        position: absolute;
+        top: 50%;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        transform: translateY(-50%);
+    }
+    
+    .timeline-item:nth-child(odd) .timeline-pointer {
+        right: -16px;
+        border-left-color: #252525;
+    }
+    
+    .timeline-item:nth-child(even) .timeline-pointer {
+        left: -16px;
+        border-right-color: #252525;
+    }
+    
+    .timeline-item:nth-child(odd) .timeline-content:hover .timeline-pointer {
+        border-left-color: #2a2a2a;
+    }
+    
+    .timeline-item:nth-child(even) .timeline-content:hover .timeline-pointer {
+        border-right-color: #2a2a2a;
     }
     
     .message-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #333;
     }
     
     .sender {
         font-weight: 600;
         color: #ffffff;
+        font-size: 1rem;
     }
     
     .message-date {
         color: #a0a0a0;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
     
     .message-subject {
         color: #e0e0e0;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        font-weight: 500;
     }
     
     .thread-indicators {
@@ -1020,7 +1096,7 @@ COMMON_STYLES = """
     .reply-badge, .forward-badge, .depth-badge {
         padding: 0.25rem 0.5rem;
         border-radius: 4px;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 500;
     }
     
@@ -1037,6 +1113,85 @@ COMMON_STYLES = """
     .depth-badge {
         background: #667eea;
         color: white;
+    }
+    
+    .timeline-month-marker {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        color: #333;
+        border-radius: 50%;
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.8rem;
+        z-index: 3;
+        border: 3px solid #1a1a1a;
+    }
+    
+    .timeline-month-marker .month {
+        font-size: 0.7rem;
+        line-height: 1;
+    }
+    
+    .timeline-month-marker .year {
+        font-size: 0.6rem;
+        line-height: 1;
+    }
+    
+    @media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+        
+        .content-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .api-section,
+        .examples-section {
+            padding: 1.5rem;
+        }
+        
+        .status-section {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .upload-section {
+            padding: 2rem;
+        }
+        
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .data-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .tabs-header {
+            flex-wrap: wrap;
+        }
+    }
+    
+    .timeline-month-marker .year {
+        font-size: 0.6rem;
+        line-height: 1;
     }
     
     .thread-participants {
@@ -1325,51 +1480,6 @@ COMMON_STYLES = """
     .context-body-content.text {
         white-space: pre-wrap;
         word-wrap: break-word;
-    }
-    
-    @media (max-width: 768px) {
-        body {
-            padding: 10px;
-        }
-        
-        .content-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-        
-        .hero-title {
-            font-size: 2.5rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.1rem;
-        }
-        
-        .api-section,
-        .examples-section {
-            padding: 1.5rem;
-        }
-        
-        .status-section {
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .upload-section {
-            padding: 2rem;
-        }
-        
-        .summary-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .data-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .tabs-header {
-            flex-wrap: wrap;
-        }
     }
 </style>
 """
@@ -1984,20 +2094,39 @@ UPLOAD_PAGE = f"""
             }};
             
             threadTimeline.innerHTML = `
-                <div class="timeline-item ${{timelineData.is_root ? 'root' : ''}} ${{timelineData.is_latest ? 'latest' : ''}}">
-                    <div class="timeline-marker">${{timelineData.position}}</div>
-                    <div class="timeline-content">
-                        <div class="message-header">
-                            <span class="sender">${{headers.from || 'Unknown Sender'}}</span>
-                            <span class="message-date">${{headers.date || 'Unknown Date'}}</span>
-                        </div>
-                        <div class="message-subject">${{headers.subject || 'No Subject'}}</div>
-                        <div class="thread-indicators">
-                            ${{threadAnalysis.is_reply ? '<span class="reply-badge">↩️ Reply</span>' : ''}}
-                            ${{threadAnalysis.is_forward ? '<span class="forward-badge">↪️ Forward</span>' : ''}}
-                            <span class="depth-badge">Depth: ${{threadAnalysis.thread_depth || 0}}</span>
+                <div class="timeline-container">
+                    <div class="timeline-axis"></div>
+                    
+                    <!-- Month markers -->
+                    <div class="timeline-month-marker" style="top: -1rem;">
+                        <div class="month">JAN</div>
+                        <div class="year">2024</div>
+                    </div>
+                    
+                    <div class="timeline-item ${{timelineData.is_root ? 'root' : ''}} ${{timelineData.is_latest ? 'latest' : ''}}">
+                        <div class="timeline-marker">${{timelineData.position}}</div>
+                        <div class="timeline-content">
+                            <div class="timeline-pointer"></div>
+                            <div class="message-header">
+                                <span class="sender">${{headers.from || 'Unknown Sender'}}</span>
+                                <span class="message-date">${{headers.date || 'Unknown Date'}}</span>
+                            </div>
+                            <div class="message-subject">${{headers.subject || 'No Subject'}}</div>
+                            <div class="thread-indicators">
+                                ${{threadAnalysis.is_reply ? '<span class="reply-badge">↩️ Reply</span>' : ''}}
+                                ${{threadAnalysis.is_forward ? '<span class="forward-badge">↪️ Forward</span>' : ''}}
+                                <span class="depth-badge">Depth: ${{threadAnalysis.thread_depth || 0}}</span>
+                            </div>
                         </div>
                     </div>
+                    
+                    <!-- Additional month marker if needed -->
+                    ${{threadAnalysis.thread_depth > 2 ? `
+                    <div class="timeline-month-marker" style="bottom: -1rem;">
+                        <div class="month">FEB</div>
+                        <div class="year">2024</div>
+                    </div>
+                    ` : ''}}
                 </div>
             `;
             
