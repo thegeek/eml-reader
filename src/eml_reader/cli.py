@@ -22,7 +22,6 @@ import asyncio
 import click
 import json
 from pathlib import Path
-from typing import Any
 from datetime import datetime
 
 from .server import run_server
@@ -157,27 +156,27 @@ def check() -> None:
             click.echo(f"   Path: {resource_mgr.ssl_key_file}")
 
         if ssl_status["cert_valid"]:
-            click.echo(f"✅ Certificate Valid: Yes")
+            click.echo("✅ Certificate Valid: Yes")
             if ssl_status["expires_in_days"] is not None:
                 click.echo(f"📅 Expires in: {ssl_status['expires_in_days']} days")
 
         # Display errors and warnings
         if status["errors"]:
-            click.echo(f"\n❌ Errors:")
+            click.echo("\n❌ Errors:")
             for error in status["errors"]:
                 click.echo(f"   - {error}")
 
         if status["warnings"]:
-            click.echo(f"\n⚠️  Warnings:")
+            click.echo("\n⚠️  Warnings:")
             for warning in status["warnings"]:
                 click.echo(f"   - {warning}")
 
         # Overall status
         if not status["errors"]:
-            click.echo(f"\n✅ All checks passed! EML Reader is ready to use.")
+            click.echo("\n✅ All checks passed! EML Reader is ready to use.")
         else:
             click.echo(
-                f"\n❌ Some issues found. Run 'eml-reader bootstrap init' to fix them."
+                "\n❌ Some issues found. Run 'eml-reader bootstrap init' to fix them."
             )
             raise click.Abort()
 
@@ -220,7 +219,7 @@ def config_file_size(size_mb: int) -> None:
 
         click.echo(f"✅ File upload size limit set to {size_mb}MB")
         click.echo(f"📁 Configuration saved to: {resource_mgr.config_file}")
-        click.echo(f"🔄 Restart the server for changes to take effect")
+        click.echo("🔄 Restart the server for changes to take effect")
 
     except Exception as e:
         click.echo(f"❌ Configuration failed: {e}", err=True)
@@ -276,7 +275,7 @@ def analyze(directory: Path, output: Path | None, pretty: bool) -> None:
         # Get thread analysis
         all_threads = processor.get_all_threads()
 
-        click.echo(f"\n📊 Thread Analysis Results:")
+        click.echo("\n📊 Thread Analysis Results:")
         click.echo(f"  Total threads: {len(all_threads)}")
         click.echo(f"  Total messages: {sum(t['message_count'] for t in all_threads)}")
         click.echo(
@@ -287,7 +286,7 @@ def analyze(directory: Path, output: Path | None, pretty: bool) -> None:
         top_threads = sorted(
             all_threads, key=lambda x: x["message_count"], reverse=True
         )[:5]
-        click.echo(f"\n🏆 Top 5 Threads by Message Count:")
+        click.echo("\n🏆 Top 5 Threads by Message Count:")
         for i, thread in enumerate(top_threads, 1):
             click.echo(
                 f"  {i}. {thread['subject'][:50]}... ({thread['message_count']} messages)"
@@ -310,7 +309,7 @@ def analyze(directory: Path, output: Path | None, pretty: bool) -> None:
 
             click.echo(f"\n✅ Thread analysis saved to: {output}")
 
-        click.echo(f"\n✅ Thread analysis completed successfully!")
+        click.echo("\n✅ Thread analysis completed successfully!")
 
     except Exception as e:
         click.echo(f"❌ Thread analysis failed: {e}", err=True)
@@ -361,7 +360,7 @@ def search(query: str, output: Path | None, pretty: bool) -> None:
 
             click.echo(f"✅ Search results saved to: {output}")
 
-        click.echo(f"\n✅ Thread search completed!")
+        click.echo("\n✅ Thread search completed!")
 
     except Exception as e:
         click.echo(f"❌ Thread search failed: {e}", err=True)
@@ -413,7 +412,7 @@ def show(thread_id: str, output: Path | None, pretty: bool) -> None:
 
             click.echo(f"✅ Thread details saved to: {output}")
 
-        click.echo(f"\n✅ Thread details retrieved!")
+        click.echo("\n✅ Thread details retrieved!")
 
     except Exception as e:
         click.echo(f"❌ Thread details failed: {e}", err=True)
@@ -444,7 +443,7 @@ def process(eml_file: Path, output: Path | None, summary: bool, pretty: bool) ->
         summary_data = processor.get_summary(eml_data)
 
         # Display summary
-        click.echo(f"\n📋 Summary:")
+        click.echo("\n📋 Summary:")
         click.echo(f"   Subject: {summary_data['subject']}")
         click.echo(f"   From: {summary_data['from']}")
         click.echo(f"   To: {summary_data['to']}")
@@ -471,13 +470,13 @@ def process(eml_file: Path, output: Path | None, summary: bool, pretty: bool) ->
             click.echo(f"\n✅ Results saved to: {output}")
         else:
             # Display to console
-            click.echo(f"\n📄 Full Data:")
+            click.echo("\n📄 Full Data:")
             if pretty:
                 click.echo(json.dumps(result_data, indent=2, ensure_ascii=False))
             else:
                 click.echo(json.dumps(result_data, ensure_ascii=False))
 
-        click.echo(f"\n✅ EML file processed successfully!")
+        click.echo("\n✅ EML file processed successfully!")
 
     except FileNotFoundError as e:
         click.echo(f"❌ File not found: {e}", err=True)

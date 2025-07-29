@@ -25,11 +25,10 @@ Features:
 import asyncio
 import ssl
 from pathlib import Path
-from aiohttp import web, ClientSession
-from typing import Any
+from aiohttp import web
 
 from .resource import ResourceManager
-from .html import WELCOME_PAGE, UPLOAD_PAGE, ERROR_PAGE_TEMPLATE, NOT_FOUND_PAGE
+from .html import WELCOME_PAGE, UPLOAD_PAGE
 from .eml_processor import EMLProcessor
 
 
@@ -326,15 +325,13 @@ class EMLServer:
                 ):
                     cert_path = self.resource_mgr.ssl_cert_file
                     key_path = self.resource_mgr.ssl_key_file
-                    print(f"🔒 Using generated SSL certificates")
+                    print("🔒 Using generated SSL certificates")
                 else:
-                    print(f"⚠️  No SSL certificates found, running in HTTP mode")
-                    print(
-                        f"   Run 'eml-reader bootstrap init' to generate certificates"
-                    )
-            except Exception as e:
-                print(f"⚠️  Could not load generated certificates: {e}")
-                print(f"   Running in HTTP mode")
+                    print("⚠️  No SSL certificates found, running in HTTP mode")
+                    print("   Run 'eml-reader bootstrap init' to generate certificates")
+            except Exception:
+                print("⚠️  Could not load generated certificates: {e}")
+                print("   Running in HTTP mode")
 
         if cert_path and key_path:
             ssl_context = self.create_ssl_context(cert_path, key_path)
