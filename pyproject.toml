@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "eml-reader"
+version = "0.1.0"
+description = "A professional email processing and analysis platform with web interface and CLI for reading, parsing, and analyzing EML files"
+readme = "README.md"
+requires-python = ">=3.13"
+keywords = ["email", "eml", "parser", "web", "cli", "analysis", "processing"]
+authors = [
+    {name = "EML Reader Team", email = "team@eml-reader.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Communications :: Email",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "click>=8.0.0",
+    "aiohttp>=3.9.0",
+    "toml>=0.10.0",
+    "cryptography>=41.0.0"
+]
+
+[project.scripts]
+eml-reader = "eml_reader.cli:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/eml_reader"]
